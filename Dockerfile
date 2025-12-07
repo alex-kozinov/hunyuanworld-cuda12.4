@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
 # ---- System deps ----
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.10 python3-pip python3-dev python3-venv \
-    git curl wget ca-certificates \
+    git tmux wget curl ca-certificates openssh-server nginx \
     libgl1 libglib2.0-0 ffmpeg \
     build-essential pkg-config \
     tini \
@@ -19,12 +19,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1 && \
     python -m pip install --upgrade pip
 
+# Prepare host (SSH, NGINX)
+RUN rm -f /etc/ssh/ssh_host_*
+
+# NGINX Proxy
+COPY proxy/nginx.conf /etc/nginx/nginx.conf
+COPY proxy/readme.html /usr/share/nginx/html/readme.html
+
+
 # ---- Workdir & project ----
 WORKDIR /workspace
-# если репо уже у тебя локально рядом с Dockerfile — лучше COPY:
-# COPY HunyuanWorld-Mirror /workspace/HunyuanWorld-Mirror
-# COPY requirements.txt /workspace/HunyuanWorld-Mirror/requirements.txt
-# иначе клонируем внутри образа:
 RUN git clone https://github.com/Tencent-Hunyuan/HunyuanWorld-Mirror.git /workspace/HunyuanWorld-Mirror
 WORKDIR /workspace/HunyuanWorld-Mirror
 
