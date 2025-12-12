@@ -50,9 +50,8 @@ RUN python -m pip install -U "huggingface_hub[cli]==0.25.2" hf-transfer
 RUN python -m pip install jupyterlab ipykernel && \
     python -m ipykernel install --user --name py310 --display-name "Python 3.10 (CUDA 12.4)"
 
-# (опционально) НЕ тянем чекпойнты в образ, чтобы он не раздулся:
-# RUN huggingface-cli download tencent/HunyuanWorld-Mirror --local-dir ./ckpts
-
-EXPOSE 8888
-ENTRYPOINT ["/usr/bin/tini", "--"]
-CMD ["bash", "-lc", "jupyter lab --no-browser --ip=0.0.0.0 --port=8888 --allow-root --ServerApp.allow_origin='*' --ServerApp.disable_check_xsrf=True"]
+# Start Script
+COPY scripts/start.sh /start.sh
+RUN chmod 755 /start.sh
+WORKDIR /workspace
+CMD ["/start.sh"]
